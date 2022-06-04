@@ -124,9 +124,9 @@ The `.env` file in the root directory of the project is key.
 
 Docker exports the variables listed here to all docker container service environments running under the same docker-compose service description instance, all of which lease LAN IPs from dockers DNS, always at 127.0.0.11. 
 
-Custom code written by other developers and altered for use in this project is used to manage the interpolation of environment variables into a `nginx.conf.template`, to produce a working `nginx.conf`.
+Custom code written by other developers and altered for use in this project is used to manage the interpolation of environment variables into a `nginx.conf.template`, to produce a working configuration file. A different internal name is used, but the idea is the same. See `endpoint.sh` and feel free to clean up the deluge of commented code there. Writing this now, I can predict it will still look a mess in the far-flung future, when people merge with their identity waves spontaneously and traverse the universe on solar radiation in search of BRAINSSS!!!! Heck if the code is going to be a mashup, why not the pop culture references to indoctrination tropes for nervous people with an itch?
 
-Customization beyond `FQDN`, `ADMIN_EMAIL` and the various images listed in `.env` destined for the runtime `nginx.conf` are very possible. 
+Customization beyond `FQDN`, `ADMIN_EMAIL` and the various images listed in `.env` destined for the runtime `nginx.conf` are very possible. The `AS_` prefix is a handy means of consolidating variables you might want to use in your own custom Nginx template. So long as your variables are environment variables to the `proxy` service, and you use the prefix, you will be able to follow the convention of placing dollar references `${AS_NEW_PROXY_VARIABLE}` and have the Nginx configuration interpolate the values into place to produce the working configuration mentioned above when you build the container following changes to any of the relevant files.
 
 The file `endpoint.sh` safely gets around a measure `nginx` uses to prevent external environment variable insertion. Variables from environment are interpolated to string values before nginx.conf is used by nginx, so only the hand behind launching the project may influence variable insertion -- between run sessions, never during. 
 
