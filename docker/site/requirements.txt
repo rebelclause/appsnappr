@@ -1,0 +1,7 @@
+# starlite
+redis
+redis-om
+ORM-SQLite
+# aiosqlite3
+pandas
+numpy

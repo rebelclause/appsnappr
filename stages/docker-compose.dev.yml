@@ -1,0 +1,65 @@
+# Invalid top-level property "service". Valid top-level sections for this Compose file are: version, services, networks, volumes, secrets, configs, and extensions starting with "x-".
+
+# You might be seeing this error because you're using the wrong Compose file version. Either specify a supported version (e.g "2.2" or "3.3") and place your service definitions under the `services` key, or omit the `version` key and place your service definitions at the root of the file to use version 1.
+# For more on the Compose file format versions, see https://docs.docker.com/compose/compose-file/
+
+# # The RESTART POLICIES - the project relies on link: to chain depedencies, preferring for the db to be central, always starting
+# Flag 	Description
+# no 	Do not automatically restart the container. (the default)
+# on-failure[:max-retries] 	Restart the container if it exits due to an error, which manifests as a non-zero exit code. Optionally, limit the number of times the Docker daemon attempts to restart the container using the :max-retries option.
+# always 	Always restart the container if it stops. If it is manually stopped, it is restarted only when Docker daemon restarts or the container itself is manually restarted. (See the second bullet listed in restart policy details)
+# unless-stopped 	Similar to always, except that when the container is stopped (manually or otherwise), it is not restarted even after Docker daemon restarts.
+
+
+version: "3.7"
+
+services:
+
+  proxy:
+    restart: unless-stopped
+    # image: noop
+    # build:
+    #   context: .
+    # ports:
+    #   - "127.0.0.1:80:80"
+    #   - "127.0.0.1:443:443"
+
+  postgres:
+    restart: unless-stopped
+    # image: noop
+    # build:
+    #   context: .
+    env_file:
+      - ./stages/.secret.env
+
+  site:
+    restart: unless-stopped
+    # image: noop
+    build:
+      context: ./docker/site/
+      dockerfile: Development
+    env_file:
+      - ./stages/.common.env
+      - ./stages/.dev.env
+      - ./stages/.secret.env
+      # ordered overide, last is maker
+    command: uvicorn main:app --reload --host "0.0.0.0" --ws auto --log-level debug 
+      # --app-dir app --interface auto
+    environment:
+      PYTHONDONTWRITEBYTECODE: 1
+      PYTHONUNBUFFERED: 1      
+    volumes:
+      - type: bind
+        source: ${PWD}
+        target: /opt
+
+# production override does not use a bind mount
+# project layout flattens 
+    # volumes: *site
+    #   #   # could bind to a unix socket
+    #   # - type: bind
+    #   #   # host's current working dir,
+    #   #   # code being worked on lives here
+    #   #   source: ${PWD}
+    #   #   # internal to the container
+    #   #   target: /opt

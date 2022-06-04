@@ -1,0 +1,10 @@
+https://docs.docker.com/compose/extends/#adding-and-overriding-configuration
+
+For single-value options like image, command or mem_limit, the new value replaces the old value.
+
+For the multi-value options ports, expose, external_links, dns, dns_search, and tmpfs, Compose concatenates both sets of values:
+
+In the case of environment, labels, volumes, and devices, Compose “merges” entries together with locally-defined values taking precedence. For environment and labels, the environment variable or label name determines which value is used:
+
+
+Entries for volumes and devices are merged using the mount path in the container:

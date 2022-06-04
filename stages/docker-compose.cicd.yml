@@ -1,0 +1,48 @@
+# Invalid top-level property "service". Valid top-level sections for this Compose file are: version, services, networks, volumes, secrets, configs, and extensions starting with "x-".
+
+# You might be seeing this error because you're using the wrong Compose file version. Either specify a supported version (e.g "2.2" or "3.3") and place your service definitions under the `services` key, or omit the `version` key and place your service definitions at the root of the file to use version 1.
+# For more on the Compose file format versions, see https://docs.docker.com/compose/compose-file/
+
+
+version: "3.7"
+
+services:
+
+  proxy:
+    restart: when_stopped
+    # image: noop
+    # build:
+    #   context: .
+
+  postgres:
+    restart: always
+    # image: noop
+    # build:
+    #   context: .
+
+  site:
+    # restart: never
+    # image: noop
+    build:
+      context: ./docker/site/
+      dockerfile: Dockerfile
+    env_file:
+      - ./stages/.cicd.env
+      - ./stages/.secret.env
+    # environment:
+    #   PYTHONDONTWRITEBYTECODE: 1
+    #   PYTHONUNBUFFERED: 1      
+    # volumes:
+    #   - type: bind
+    #     source: ${PWD}
+    #     target: /opt
+
+
+    # volumes: *site
+    #   #   # could bind to a unix socket
+    #   # - type: bind
+    #   #   # host's current working dir,
+    #   #   # code being worked on lives here
+    #   #   source: ${PWD}
+    #   #   # internal to the container
+    #   #   target: /opt

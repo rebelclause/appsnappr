@@ -1,0 +1,129 @@
+version: "3.7"
+
+services:
+
+  proxy:
+    container_name: proxy
+    restart: always
+    image: ${PROXY_IMG}-${PROJECT_TAG}
+    build:
+      context: ./docker/proxy
+      dockerfile: Dockerfile
+      args:
+        BASEIMG: ${PROXY_IMG}
+        MAINTAINER: ${MAINTAINER}
+        SCRIPTPATH: /opt
+      cache_from:
+        - ${PROXY_IMG}-${PROJECT_TAG}
+        - ${PROXY_IMG}
+      labels:
+        com.domain.description: "${PROJECT_TAG}:${PROJECT_VER} nginx letsencrypt proxy frontend"
+    env_file: [./stages/.dev.env]
+    environment:
+#      - FQDN=${FQDN}
+#      - HOSTNAME=${HOSTNAME}
+#      - ADMINEMAIL=${ADMINEMAIL}
+#      - MAINTAINER=${MAINTAINER}
+      - PROJECT_VER_MAJ=${PROJECT_VER_MAJ}
+      - PROJECT_VER_MIN=${PROJECT_VER_MIN}
+      - PROJECT_VER_PATCH=${PROJECT_VER_PATCH}
+      - PROJECT_VER=${PROJECT_VER}
+      - AS_FQDN=${FQDN}
+      - AS_HOSTNAME=${HOSTNAME}
+      - AS_ADMINEMAIL=${ADMINEMAIL}
+      - AS_PORT=80
+      - AS_PROXY=http://site
+      - AS_PROXY_PORT=8000
+#      - NGINX_ENVSUBST_TEMPLATE_DIR=/etc/nginx/templates
+      - NGINX_ENVSUBST_TEMPLATE_SUFFIX=.conf
+#      - NGINX_ENVSUBST_OUTPUT_DIR=/etc/nginx/conf.d
+    domainname: ${FQDN}
+    hostname: ${HOSTNAME}
+    command: 
+      - nginx-letsencrypt
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      # appears deprecated bad form
+      # - ./docker/nginx/conf.d/merge.conf:/etc/nginx/conf.d/default.conf
+      - ./._${PROJECT_TAG}/.certs/:/etc/letsencrypt/
+      - ./._${PROJECT_TAG}/.selfsigned/:/usr/share/nginx/certificates/
+      - ./._${PROJECT_TAG}/nginx/logs/:/var/log/nginx/
+    tty: true
+    stdin_open: true
+    networks:
+      - frontend
+      - backend
+
+
+  postgres:
+    container_name: postgres
+    restart: always
+    image: ${POSTGRES_IMG}-${PROJECT_TAG}
+    build:
+      context: ./docker/postgresql
+      dockerfile: Dockerfile
+      args:
+        BASEIMG: ${POSTGRES_IMG}
+        MAINTAINER: ${MAINTAINER} 
+      cache_from:
+        - ${POSTGRES_IMG}-${PROJECT_TAG}
+        - ${POSTGRES_IMG}
+      labels:
+        com.domain.description:: "${PROJECT_TAG} postgres backend"
+    env_file: 
+      - ./stages/.common.env
+      - ./stages/.dev.env
+      - ./stages/.secret.env
+    # environment:
+      # POSTGRES_DB: postgres # default, user/pass req'd only
+      # postgres dockerhub page gives details on an init method to create one or more other dbs
+      # POSTGRES_USER: postgresuser
+      # POSTGRES_PASSWORD: postgrespass
+    expose:
+      - "5432"
+    volumes:
+      - ./._${PROJECT_TAG}/_postgresql:/var/lib/postgresql/data:rw
+    links:
+      - proxy
+    networks:
+      - backend
+
+
+  site:
+    container_name: site
+    restart: unless-stopped
+    image: ${SITE_IMG}-${PROJECT_TAG}
+    build:
+      context: ./docker/site/
+      dockerfile: Dockerfile
+      args:
+        BASEIMG: ${SITE_IMG}
+        MAINTAINER: ${MAINTAINER}     
+      cache_from:
+        - ${SITE_IMG}-${PROJECT_TAG}
+        - ${SITE_IMG}
+    working_dir: /opt
+    # entrypoint: bash
+    command: uvicorn main:app --reload --host "0.0.0.0" --ws auto --log-level debug 
+    # --app-dir app --interface auto
+    expose:
+      - "8000"
+    networks:
+      - frontend
+      - backend
+    links:
+      - postgres
+
+networks:
+  frontend:
+  backend:
+
+# TODO: interpolation does not work on keys, PROJECT_TAG directory will be made as the superuser unless prior to running docker compose the directory name is created on the host by ${USER}
+# volumes:
+#   ${PROJECT_TAG}:
+
+
+
+

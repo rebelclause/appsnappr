@@ -1,0 +1,11 @@
+Subject Name
+C (Country):	PT
+ST (State):	World
+L (Locality):	World
+O (Organization):	example.com
+OU (Organizational Unit):	localhost
+CN (Common Name):	example.com
+Certificate request
+Type:	PKCS#10
+Version:	1
+Public Key Info

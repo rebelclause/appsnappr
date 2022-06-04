@@ -1,0 +1,3 @@
+Experienced some trouble installing numpy but wanted to get this out. As of this cut, the Alpine versions were clone on the heels of leading betas, so the issue may resolve as numpy catches up, or there may be a specific build dependency. You're welcome to solve it. In the meantime, it's still Python3.10, so as of this writing, who could complain about being able to try out code that uses match case? ;p
+
+

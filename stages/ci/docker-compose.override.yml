@@ -1,0 +1,21 @@
+# https://docs.docker.com/compose/extends/
+# https://docs.docker.com/compose/extends/#adding-and-overriding-configuration
+
+# The extends keyword is supported in earlier Compose file formats up to Compose file version 2.1 (see extends in v2), but is not supported in Compose version 3.x. See the Version 3 summary of keys added and removed, along with information on how to upgrade. See moby/moby#31101 to follow the discussion thread on the possibility of adding support for extends in some form in future versions. The extends keyword has been included in docker-compose versions 1.27 and higher.
+
+# https://docs.docker.com/compose/compose-file/compose-versioning/#version-3
+
+# The 'original' file is docker-compose.yml, and the 'local' file is docker-compose-override.yml.
+
+# docker-compose reads this file automatically when docker-compose is invoked
+
+# merge rules are specific to categories of docker-compose arguments, differentiation beginning with single valued versus multi-valued arguments
+
+# Some multi-valued arguments are concatenated (all kept), or merged, with the local overriding any original it repeats. 
+
+version: "3.7"
+
+# services:
+
+
+
