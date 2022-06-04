@@ -21,7 +21,7 @@ This repo is a companion extension to the article where core code usage is expla
 
 Minimal changes to this file are necessary and mostly self-explanatory.
 
-Any change you make to the FQDN should be reflected in the hosts (the computer running the docker containers) hosts file:
+Any change you make to the FQDN should be reflected in the host's (the computer running the docker containers) hosts file:
 
 Your hosts file will have one to several entries. The loopback addresses range from 127.0.0.1 - 127.0.0.8, and it is likely one of these is free to use.
 
@@ -92,11 +92,13 @@ You can build all services at once and bring the project up by casting:
 
 `docker-compose up`
 
-Check the starter host `127.0.0.1` maps to a secure port `443' when trying to access using port 80, and port 443, and that a self-signed certificate warning is issued by your browser.
+Check the starter host `appsnappr` redirects to TLS using secure port 443 when trying to access `appsnappr.com` in the browser. As is the case with self-signed certificates, a warning is issued by the browser.
 
-Choosing to advance here, by accepting the certificate as valid, should be followed by arrival at a simple endpoint 'Hello, World'.
+Choose advanced and follow the instructions, accepting the certificate as valid. Next, the simple endpoint 'Hello, World' should load.
 
---- Note: spaces only between services listed following `up`, `down`, `build` or `restart`): ---
+In this development mode, if you did not use the `-d flag` to `docker-compose up`, you can watch the each service's output in the terminal. The Python project will reload the `site` service if you make changes to the files in the project folder. The production site copies all files necessary into the container, so reloads don't happen. This feature is also recommended to be switched off with your choice of server workers, ie. uvicorn or gunicorn. There will still be files in the virtual environment directory but they can no longer be changed during runtime unless you enter a container and change them, a move which does not persist if you happen to rebuild the container in question. Your CI pipeline may help you with versioning, so your task might be configured to delete project files from the server once the container is built. Practices vary, so you might want to check around.
+
+--- Note: spaces only between services listed following `up`, `down`, `build` or `restart`, but Docker will tell you that ---
 
 ## Build one, multiple or all service(s):
 
@@ -153,7 +155,9 @@ An override of a common setup reveals this. Default `postgres` container setup r
 
 Many setups are possible. The Nginx template is not overly complex, or particularly relevant to all cases by being general and robust enough to anticipate hosting similarities and the points at which the criteria are most divergent. So, developers who wish to help others using `appsnappr` are encouraged to share modular bits of configuration, as with `proxy_params`, `uwsgi_params`, `secure_params`, files you'll find in the `proxy` docker service folder, the `appsnappr` core, if you will.
 
-Pull requests for this sort of addition are welcomed, though a fork featuring your well-tested specializations might make life easier for everyone, ensuring that the base conditions and features are well documented. Hit me up so a link can be provided offering more detail than diving through all the forks can give. As there are many webservers out there and they are increasingly moving to plug-and-play over many common setups, repo traffic may be light, so for many common things, it might be best to consider this project 'intermediate' and its developer 'not in the office' for tech support. The number of links attached to this verbose READ.me should tell you something about who's really running the show, and you might be one of those persons; and the number has been severely cut back from the real box-stuffing number of bookmark links and bleary-eyed traversals of the Interwebs. So, really, thank you. If you use this, tell someone else, and they may also be able to help you if you want to extend it. This is a good opportunity to give a shout-out to StackOverlow and the amazing and talented people around the world who find their way there and leave behind bits, chunks and mountains of searingly relevant content. Thank You.
+Pull requests for this sort of addition are welcomed, though a fork featuring your well-tested specializations might make life easier for everyone, ensuring that the base conditions and features are well documented. Hit me up so a link can be provided offering more detail than diving through all the forks can give. As there are many webservers out there and they are increasingly moving to plug-and-play over many common setups, repo traffic may be light, so for many common things, it might be best to consider this project 'intermediate' and its developer 'not in the office' for tech support. 
+
+The number of links attached to this verbose READ.me should tell you something about who's really running the show, and you might be one of those persons; and the number has been severely cut back from the real box-stuffing number of bookmark links and bleary-eyed traversals of the Interwebs. So, really, thank you. If you use this, tell someone else, and they may also be able to help you if you want to extend it. This is a good opportunity to give a shout-out to StackOverlow and the amazing and talented people around the world who find their way there and leave behind bits, chunks and mountains of searingly relevant content. Thank You.
 
 # Docker stuffs
 
@@ -236,6 +240,9 @@ Resolve the docker-compose file, interpolating all variables.
 
 `alias users='cut -d : -f 1 /etc/passwd'`
 
+### A single file per stage means values are exported to any service that lists them.
+
+### All secret keys are presently shown with defaults in '.common.env', listed in first position wherever used in a stage override.
 
 ## Deployment, other
 
@@ -320,12 +327,10 @@ REFERENCES:
 [Docker: version 3 -- feature changes, removals and additions](https://docs.docker.com/compose/compose-file/compose-versioning/#version-3)
 
 [Docker: Overview of docker-compose](https://docs.docker.com/compose/)# a single '.secret.env' file is easiest to maintain
-# a single file per stage means values are exported to any service that lists them
-# all secret keys are presently shown with defaults in '.common.env', listed in first position wherever used in a stage override
+
     # 'env_file:' arrays overwrite values top to bottom, repeitions read last being the accepted value
     # 'env_file: arrays add keys and their values for those that don't exist in the chain
 
-# presently, only postgresql is the same throughout stages, unless user and pass are changed, then the database will require a corresponding user and pass change via psql, or it will have to be rebuilt using docker-compose and the service description. which is a happenstance of moving between stages anyway. This is mentioned in the event the environment for both development and production is the same, as building from a single compose file will rebuild all assets. If the data is to be saved workaround research may be necessary.
 [Docker: Dockerfile](https://docker.com/dockerfile)
 
 [Docker: docker-compose, extends:, to version 2.1](https://docs.docker.com/compose/extends/)
