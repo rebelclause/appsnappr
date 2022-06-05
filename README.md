@@ -23,7 +23,7 @@ Minimal changes to this file are necessary and mostly self-explanatory.
 
 Any change you make to the FQDN should be reflected in the host's (the computer running the docker containers) hosts file:
 
-Your hosts file will have one to several entries. The loopback addresses range from 127.0.0.1 - 127.0.0.8, and it is likely one of these is free to use.
+Your hosts file will have one to several entries. The loopback addresses range from 127.0.0.1 - 127.0.0.8, and it is likely one of these is free to use. To be fair, the real range of reserved addresses for loopback is 127.0.0.0 – 127.255.255.255, but you'll conventionally see the first range mentioned.
 
 The FQDN entry made in `.env` (without a subdomain prefix) will be paired in the hosts file with a local loopback:
 
@@ -38,11 +38,17 @@ sudo nano /etc/hosts
 
 ```
 
-The change should be instantaneous. 
+Upon saving the hosts file, the change should be instantaneous for any new lookups. 
 
-The project should now be accessible and will route requests to use TLS.
+The project should now be accessible and will route requests to use TLS. 
 
-There should be no need to tag on a secure port.
+If the FQDN you chose is registered and through a DNS lookup points to a hosted IP, prepare to see someone else's site.
+
+There should be no need to tag on a secure port, or use the https:// scheme; just the FQDN, like `appsnappr.com`.
+
+> NOTE: Though completely unnecessary, for the purposes of this project, `appsnappr.com` is presently a registered, parked domain. So, from June 2022 through to June 2023, by making the hosts file change alone, this project can be run locally, providing a named resource served over TLS-enabled HTTP. Lookups to Internet Domain Name Servers (DNS) will fall back on the hosts file definition.
+>
+> Knowing more about IP routing may help you strategize other loopback scenarios using IPs alone for the FQDN. Calling your site in the browser would then require entry of an IP address in your browser's address bar.
 
 ## Persistence
 
